@@ -32,7 +32,7 @@ $(BUILD):
 	mkdir -p $@
 
 run:
-	./$(BIN)/$(APPNAME)
+	./$(BIN)/$(APPNAME) $(FILE) $(ARGS)
 
 clean:
 	rm -rf $(BIN) $(BUILD)
