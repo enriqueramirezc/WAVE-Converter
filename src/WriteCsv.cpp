@@ -4,7 +4,7 @@
 #include <fstream>
 #include <iostream>
 
-// Write one channel as CSV so it can be loaded into Python, R, Excel, etc.
+// Write one channel as CSV
 int WriteCsv::write(const std::string& path, const std::vector<int16_t>& samples, uint32_t sampleRate, size_t block) {
 	std::ofstream ofs(path);
 	if (!ofs.is_open()) {

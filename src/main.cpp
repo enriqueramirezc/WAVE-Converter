@@ -10,7 +10,7 @@
 #include "WriteWav.hpp"
 #include "WriteCsv.hpp"
 
-// Print a short per-channel summary so the user can sanity check the split
+// Print a short per-channel summary 
 static void printChannelSummary(int index, const std::vector<int16_t>& ch, uint32_t sampleRate) {
 	int16_t peak = 0;
 	double sumSquares = 0.0;
