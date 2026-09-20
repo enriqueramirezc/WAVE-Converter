@@ -4,13 +4,18 @@
 
 // Write one mono 16-bit PCM channel to `path`
 int WriteWav::write(const std::string& path, const std::vector<int16_t>& samples, uint32_t sampleRate) {
+	return write(path, samples, sampleRate, 1);
+}
+
+// Write interleaved 16-bit PCM samples to `path`
+int WriteWav::write(const std::string& path, const std::vector<int16_t>& samples, uint32_t sampleRate,
+                    uint16_t numChannels) {
 	std::ofstream ofs(path, std::ios::binary);
 	if (!ofs.is_open()) {
 		std::cout << "Could not create " << path << std::endl;
 		return 0;
 	}
 
-	const uint16_t numChannels   = 1;
 	const uint16_t bitsPerSample = 16;
 	const uint16_t blockAlign    = numChannels * bitsPerSample / 8;
 	const uint32_t byteRate      = sampleRate * blockAlign;

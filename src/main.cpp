@@ -9,6 +9,7 @@
 #include "ReadData.hpp"
 #include "WriteWav.hpp"
 #include "WriteCsv.hpp"
+#include "JoinChannels.hpp"
 
 // Print a short per-channel summary 
 static void printChannelSummary(int index, const std::vector<int16_t>& ch, uint32_t sampleRate) {
@@ -32,8 +33,52 @@ int main(int argc, char* argv[]) {
 	// Read file name and optional flag from arguments
 	//   --csv     one raw sample per row
 	//   --csv N   one row (time,peak,rms) per block of N samples
+	//   --join    combine mono files into one multi-channel file
+	bool join = (argc >= 2 && std::string(argv[1]) == "--join");
+
+	if (join) {
+		if (argc < 4) {
+			std::cout << "Usage: " << argv[0]
+				<< " --join <output file> <mono file> <mono file> [...]" << std::endl;
+			return 0;
+		}
+
+		std::string output = argv[2];
+		JoinChannels joiner;
+
+		// every file after the output name becomes one channel, in order
+		for (int i = 3; i < argc; i++) {
+			std::cout << "Reading " << argv[i] << std::endl;
+			if (joiner.addFile(argv[i]) != 1) {
+				return 1;
+			}
+		}
+
+		std::vector<int16_t> samples = joiner.interleave();
+		uint16_t numChannels = static_cast<uint16_t>(joiner.channels.size());
+
+		std::filesystem::create_directories(
+			std::filesystem::path(output).parent_path().empty()
+				? "." : std::filesystem::path(output).parent_path());
+
+		WriteWav wav;
+		if (wav.write(output, samples, joiner.SampleRate, numChannels) != 1) {
+			return 1;
+		}
+
+		std::cout << "---------------" << std::endl;
+		std::cout << "wrote " << output
+			<< ": channels=" << numChannels
+			<< " sample rate=" << joiner.SampleRate
+			<< " duration=" << static_cast<double>(samples.size() / numChannels) / joiner.SampleRate
+			<< "s" << std::endl;
+		return 0;
+	}
+
 	if (argc < 2 || argc > 4 || (argc >= 3 && std::string(argv[2]) != "--csv")) {
 		std::cout << "Usage: " << argv[0] << " <audio file> [--csv [block size]]" << std::endl;
+		std::cout << "       " << argv[0]
+			<< " --join <output file> <mono file> <mono file> [...]" << std::endl;
 		return 0;
 	}
 	std::string input = argv[1];
