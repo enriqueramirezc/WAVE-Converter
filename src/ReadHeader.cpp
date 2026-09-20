@@ -37,9 +37,23 @@ int ReadHeader::fetchMetadata(FileHeader& h, std::ifstream& ifs) {
 			ifs.read(reinterpret_cast<char*>(&h.ByteRate), 4);
 			ifs.read(reinterpret_cast<char*>(&h.BlockAlign), 2);
 			ifs.read(reinterpret_cast<char*>(&h.BitsPerSample), 2);
-			// fmt chunk may be larger than 16. Skip extra bytes
-			if (chunkSize > 16) {
-				ifs.seekg(chunkSize - 16, std::ios::cur);
+			h.FormatTag = h.AudioFormat;
+
+			// fmt chunk may be larger than 16
+			uint32_t extraBytes = (chunkSize > 16) ? chunkSize - 16 : 0;
+
+			// WAVE_FORMAT_EXTENSIBLE hides real format code in first
+			// 2 bytes of the 16 byte SubFormat GUID, which sits 8 bytes after
+			// the cbSize field: cbSize (2) + Samples (2) + ChannelMask (4)
+			if (h.AudioFormat == 65534 && extraBytes >= 24) {
+				ifs.seekg(8, std::ios::cur);
+				ifs.read(reinterpret_cast<char*>(&h.FormatTag), 2);
+				extraBytes -= 10;
+			}
+
+			// skip whatever is left of the chunk
+			if (extraBytes > 0) {
+				ifs.seekg(extraBytes, std::ios::cur);
 			}
 			foundFmt = true;
 

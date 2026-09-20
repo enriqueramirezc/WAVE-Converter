@@ -22,6 +22,10 @@ class FileHeader {
 	uint16_t BlockAlign;
 	uint16_t BitsPerSample;
 
+	// real format code. same as AudioFormat, except when AudioFormat is
+	// 65534 (extensible), where it comes from the SubFormat GUID instead
+	uint16_t FormatTag;
+
 	// data sub-chunk
     char SubChunk2ID[4];
 	uint32_t SubChunk2Size;

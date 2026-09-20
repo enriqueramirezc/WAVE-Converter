@@ -58,7 +58,7 @@ int main(int argc, char* argv[]) {
 	}
 	h.printHeaderInfo();
 
-	if (h.AudioFormat != 1 || h.BitsPerSample != 16) {
+	if (h.FormatTag != 1 || h.BitsPerSample != 16) {
 		std::cout << "Only 16-bit PCM is supported" << std::endl;
 		return 1;
 	}

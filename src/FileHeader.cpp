@@ -11,7 +11,11 @@ void FileHeader::printHeaderInfo() {
 
 	std::cout << "fmt id: " << std::string(SubChunk1ID, 4) << std::endl;
 	std::cout << "fmt size: " << SubChunk1Size << std::endl;
-	std::cout << "fmt audio format: " << AudioFormat << std::endl;
+	std::cout << "fmt audio format: " << AudioFormat;
+	if (AudioFormat == 65534) {
+		std::cout << " (extensible, sub-format " << FormatTag << ")";
+	}
+	std::cout << std::endl;
 	std::cout << "fmt Channels: " << NumChannels << std::endl;
 	std::cout << "fmt Sample rate: " << SampleRate << std::endl;
 	std::cout << "fmt byte range: " << ByteRate << std::endl;
